@@ -45,18 +45,18 @@ isWatchable({}) // => false
 // recomended to use built-in helpers methods that will define extension
 // without breaking assumbtions made by other libraries:
 
-isWatchable.extend(Object, function() { return false })
+isWatchable.define(Object, function() { return false })
 
 
 // There are primitive types in JS that won't inherit methods from Object:
 isWatchable(null) // => Exception: Method is not implemented
 
 // One could either implement methods for such types:
-isWatchable.extend(null, function() { return false })
-isWatchable.extend(undefined, function() { return false })
+isWatchable.define(null, function() { return false })
+isWatchable.define(undefined, function() { return false })
 
 // Or simply define default implementation:
-isWatchable.extend(Method, function() { return false })
+isWatchable.define(Method, function() { return false })
 
 // Alternatively default implementation may be provided at creation:
 isWatchable = Method(function() { return false })
@@ -64,7 +64,7 @@ isWatchable = Method(function() { return false })
 // Method dispatches on an first argument type. That allows us to create
 // new types with an alternative implementations:
 function Watchable() {}
-isWatchable.extend(Watchable, function() { return true })
+isWatchable.define(Watchable, function() { return true })
 
 // This will make all `Watchable` instances watchable!
 isWatchable(new Watchable()) // => true
@@ -72,7 +72,7 @@ isWatchable(new Watchable()) // => true
 // Arbitrary objects can also be extended to implement given method. For example
 // any object can simply made watchable:
 function watchable(object) {
-  return isWatchable.define(objct, function() { return true })
+  return isWatchable.implement(objct, function() { return true })
 }
 
 isWatchable(watchable({})) // => true
@@ -83,16 +83,16 @@ var watchers = Method()
 var watch = Method()
 var unwatch = Method()
 
-watchers.extend(Watchable, function(target) {
+watchers.define(Watchable, function(target) {
   return target[_watchers] || (target[_watchers] = [])
 })
 
-watch.extend(Watchable, function(target, watcher) {
+watch.define(Watchable, function(target, watcher) {
   var observers = watchers(target)
   if (observers.indexOf(watcher) < 0) observers.push(watcher)
   return target
 })
-unwatch.extend(Watchable, function(target, watcher) {
+unwatch.define(Watchable, function(target, watcher) {
   var observers = watchers(target)
   var index = observers.indexOf(watcher)
   if (observers.indexOf(watcher) >= 0) observers.unshift(watcher)
@@ -105,7 +105,7 @@ function Port() {}
 Port.prototype = Object.create(Watchable.prototype)
 
 var emit = Method()
-emit.extend(Port, function(port, message) {
+emit.define(Port, function(port, message) {
   watchers(port).slice().forEach(function(watcher) {
     watcher(message)
   })

@@ -20,7 +20,7 @@
       return globals[id];
     }, (globals[id] = {}), { uri: document.location.href + '#' + id, id: id });
   }
-}).call(this, 'loader', function(require, exports, module) {
+}).call(this, 'test/test-all', function(require, exports, module) {
 
 'use strict';
 
@@ -83,7 +83,7 @@ exports['test all types inherit from default'] = function(assert) {
 
 exports['test default can be implemented later'] = function(assert) {
   var isImplemented = Method()
-  isImplemented.extend(Method, function() {
+  isImplemented.define(Method, function() {
     return true
   })
 
@@ -96,7 +96,7 @@ exports['test default can be implemented later'] = function(assert) {
 exports['-test method for Object'] = function(assert) {
   var isObject = Method()
   var expected = trues.slice()
-  isObject.extend(Object, function() { return true })
+  isObject.define(Object, function() { return true })
 
   assert.throws(function() {
     isObject(null)
@@ -105,7 +105,7 @@ exports['-test method for Object'] = function(assert) {
      isObject(undefined)
   }, /not implement/i, 'not implemented for undefined')
 
-  isObject.extend(Method, function() { return false })
+  isObject.define(Method, function() { return false })
   expected = [ false, false ].concat(expected.slice(2))
 
   assert.deepEqual(values.map(isObject),
@@ -113,7 +113,7 @@ exports['-test method for Object'] = function(assert) {
                   'null and undefined inherits default implementation ' +
                   'rest from Object')
 
-  isObject.extend(Function, function() { return false })
+  isObject.define(Function, function() { return false })
   expected = expected.slice(0, 11).concat(false, false).concat(expected.slice(13))
 
   assert.deepEqual(values.map(isObject), expected, 'functions inherit' +
@@ -133,7 +133,7 @@ exports['test dispatch default'] = function(assert) {
   var isDefault = Method()
 
   // Implement default
-  isDefault.extend(Method, True)
+  isDefault.define(Method, True)
   assert.deepEqual(values.map(isDefault), trues,
                    'all implementation inherit from default')
 
@@ -143,8 +143,8 @@ exports['test dispatch null'] = function(assert) {
   var isNull = Method()
 
   // Implement default
-  isNull.extend(Method, False)
-  isNull.extend(null, True)
+  isNull.define(Method, False)
+  isNull.define(null, True)
   assert.deepEqual(values.map(isNull),
                    [ true ].
                    concat(falses.slice(1)),
@@ -155,8 +155,8 @@ exports['test dispatch undefined'] = function(assert) {
   var isUndefined = Method()
 
   // Implement default
-  isUndefined.extend(Method, False)
-  isUndefined.extend(undefined, True)
+  isUndefined.define(Method, False)
+  isUndefined.define(undefined, True)
   assert.deepEqual(values.map(isUndefined),
                    [ false, true ].
                    concat(falses.slice(2)),
@@ -167,8 +167,8 @@ exports['test dispatch object'] = function(assert) {
   var isObject = Method()
 
   // Implement default
-  isObject.extend(Method, False)
-  isObject.extend(Object, True)
+  isObject.define(Method, False)
+  isObject.define(Object, True)
   assert.deepEqual(values.map(isObject),
                    [ false, false ].
                    concat(trues.slice(2, 7)).
@@ -181,8 +181,8 @@ exports['test dispatch object'] = function(assert) {
 
 exports['test dispatch number'] = function(assert) {
   var isNumber = Method()
-  isNumber.extend(Method, False)
-  isNumber.extend(Number, True)
+  isNumber.define(Method, False)
+  isNumber.define(Number, True)
 
   assert.deepEqual(values.map(isNumber),
                   falses.slice(0, 2).
@@ -193,8 +193,8 @@ exports['test dispatch number'] = function(assert) {
 
 exports['test dispatch string'] = function(assert) {
   var isString = Method()
-  isString.extend(Method, False)
-  isString.extend(String, True)
+  isString.define(Method, False)
+  isString.define(String, True)
 
   assert.deepEqual(values.map(isString),
                   falses.slice(0, 15).
@@ -204,8 +204,8 @@ exports['test dispatch string'] = function(assert) {
 
 exports['test dispatch function'] = function(assert) {
   var isFunction = Method()
-  isFunction.extend(Method, False)
-  isFunction.extend(Function, True)
+  isFunction.define(Method, False)
+  isFunction.define(Function, True)
 
   assert.deepEqual(values.map(isFunction),
                   falses.slice(0, 11).
@@ -217,8 +217,8 @@ exports['test dispatch function'] = function(assert) {
 
 exports['test dispatch date'] = function(assert) {
   var isDate = Method()
-  isDate.extend(Method, False)
-  isDate.extend(Date, True)
+  isDate.define(Method, False)
+  isDate.define(Date, True)
 
   assert.deepEqual(values.map(isDate),
                   falses.slice(0, 10).
@@ -230,8 +230,8 @@ exports['test dispatch date'] = function(assert) {
 
 exports['test dispatch RegExp'] = function(assert) {
   var isRegExp = Method()
-  isRegExp.extend(Method, False)
-  isRegExp.extend(RegExp, True)
+  isRegExp.define(Method, False)
+  isRegExp.define(RegExp, True)
 
   assert.deepEqual(values.map(isRegExp),
                   falses.slice(0, 9).
@@ -247,10 +247,10 @@ exports['test inline implementation'] = function(assert) {
   var foo = {}
   assert.ok(!isFoo(foo), 'object inherits default implementation')
 
-  isFoo.define(foo, function() { return true })
+  isFoo.implement(foo, function() { return true })
   assert.ok(isFoo(foo), 'object can be extended with an implementation')
 
-  assert.ok(isFoo.define(Object.create(null), function() { return true }),
+  assert.ok(isFoo.implement(Object.create(null), function() { return true }),
     'null prototyped objects can also have inline implementations')
 }
 
