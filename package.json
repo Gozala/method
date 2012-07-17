@@ -1,7 +1,7 @@
 {
   "name": "method",
   "id": "method",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Functional polymorphic method dispatch",
   "keywords": [ "method", "dispatch", "protocol", "polymorphism", "type dispatch" ],
   "author": "Irakli Gozalishvili <rfobic@gmail.com> (http://jeditoolkit.com)",
