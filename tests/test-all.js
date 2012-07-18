@@ -233,4 +233,16 @@ exports['test inline implementation'] = function(assert) {
     'null prototyped objects can also have inline implementations')
 }
 
+
+exports['test redefine for descendant'] = function(assert) {
+  var isFoo = Method()
+  var ancestor = {}
+  isFoo.implement(ancestor, function() { return true })
+  var descendant = Object.create(ancestor)
+  isFoo.implement(descendant, function() { return false })
+
+  assert.ok(isFoo(ancestor), 'defined on ancestor')
+  assert.ok(!isFoo(descendant), 'overrided for descendant')
+}
+
 if (require.main === module) require('test').run(exports)
