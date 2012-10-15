@@ -15,7 +15,7 @@ var defineProperty = Object.defineProperty || function(object, name, property) {
   object[name] = property.value
   return object
 }
-var objectToString = Object.prototype.toString
+var typefy = Object.prototype.toString
 
 function Method(base) {
   /**
@@ -36,21 +36,19 @@ function Method(base) {
     // maps for implementation lookups, otherwise attempt to use implementation
     // for built-in falling back for implementation on the first argument.
     // Finally use default implementation if no other one is found.
-    var implementation = target === null ? Null[name] :
-                         target === undefined ? Undefined[name] :
-                         target[name] ||
-                         ((builtin = Builtins[objectToString.call(target)]) &&
-                          builtin[name]) ||
-                         Builtins.Object[name] ||
-                         Default[name]
+    var method = target === null ? Null[name] :
+                 target === undefined ? Undefined[name] :
+                 target[name] ||
+                 ((builtin = Builtins[typefy.call(target)]) && builtin[name]) ||
+                 Builtins.Object[name] ||
+                 Default[name]
 
     // If implementation not found there's not much we can do about it,
     // throw error with a descriptive message.
-    if (!implementation)
-      throw Error('Type does not implements Method')
+    if (!method) throw Error('Type does not implements method')
 
     // If implementation is found delegate to it.
-    return implementation.apply(implementation, arguments)
+    return method.apply(method, arguments)
   }
 
   // Define default implementation.
@@ -60,7 +58,7 @@ function Method(base) {
   // Method definition like follows:
   // var foo = Method()
   // object[foo] = function() { /***/ }
-  dispatch.toString = function() { return name }
+  dispatch.toString = function toString() { return name }
 
   // Copy utility Methods for convenient API.
   dispatch.implement = implementMethod
@@ -85,9 +83,9 @@ var Builtins = {
 }
 // Define aliases for predefined built-in maps to a forms that values will
 // be serialized on dispatch.
-Builtins[objectToString.call(Object.prototype)] = Builtins.Object
-Builtins[objectToString.call(Number.prototype)] = Builtins.Number
-Builtins[objectToString.call(String.prototype)] = Builtins.String
+Builtins[typefy.call(Object.prototype)] = Builtins.Object
+Builtins[typefy.call(Number.prototype)] = Builtins.Number
+Builtins[typefy.call(String.prototype)] = Builtins.String
 function implement(method, object, lambda) {
   /**
   Implements `Method` for the given `object` with a provided `implementation`.
@@ -115,7 +113,7 @@ function define(method, Type, lambda) {
   for that value type.
   **/
   if (!Type) return implement(method, Type, lambda)
-  var type = objectToString.call(Type.prototype)
+  var type = typefy.call(Type.prototype)
   return type !== "[object Object]" ? implement(method, Type.prototype, lambda) :
     // This should be `Type === Object` but since it will be `false` for
     // `Object` from different JS context / compartment / frame we assume that
