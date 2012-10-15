@@ -56,7 +56,7 @@ isWatchable.define(null, function() { return false })
 isWatchable.define(undefined, function() { return false })
 
 // Or simply define default implementation:
-isWatchable.define(Method, function() { return false })
+isWatchable.define(function() { return false })
 
 // Alternatively default implementation may be provided at creation:
 isWatchable = Method(function() { return false })

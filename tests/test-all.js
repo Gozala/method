@@ -149,12 +149,10 @@ exports['test dispatch object'] = function(assert) {
   isObject.define(False)
   isObject.define(Object, True)
   assert.deepEqual(values.map(isObject),
-                   [ false, false ].
-                   concat(trues.slice(2, 7)).
-                   concat(false).
-                   concat(trues.slice(8)),
-                   'all values except null, undefined, Object.create(null) ' +
-                   'inherit from Object')
+                   [ false, false, false, false, false ].
+                   concat(trues.slice(5, 15)).
+                   concat([false]),
+                   'all values except primitives inherit Object methods')
 
 }
 
