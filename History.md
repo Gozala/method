@@ -1,5 +1,27 @@
 # Changes
 
+
+## 0.1.0 / 2012-10-15
+
+ - Remove dependency on name module.
+ - Implement fallback for engines that do not support ES5.
+ - Add support for built-in type extensions without extending their prototypes.
+ - Make API for default definitions more intuitive.
+   Skipping type argument now defines default:
+
+      isFoo.define(function(value) {
+        return false
+      })
+
+ - Make exposed `define` and `implement` polymorphic.
+ - Removed dev dependency on swank-js.
+ - Primitive types `string, number, boolean` no longer inherit method
+   implementations from `Object`.
+
+## 0.0.3 / 2012-07-17
+
+  - Remove module boilerplate
+
 ## 0.0.2 / 2012-06-26
 
   - Name changes to make it less conflicting with other library conventions.
