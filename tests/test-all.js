@@ -72,33 +72,6 @@ exports['test default can be implemented later'] = function(assert) {
   })
 }
 
-exports['-test method for Object'] = function(assert) {
-  var isObject = Method()
-  var expected = trues.slice()
-  isObject.define(Object, function() { return true })
-
-  assert.throws(function() {
-    isObject(null)
-  }, /not implement/i, 'not implemented for null')
-  assert.throws(function() {
-     isObject(undefined)
-  }, /not implement/i, 'not implemented for undefined')
-
-  isObject.define(Method, function() { return false })
-  expected = [ false, false ].concat(expected.slice(2))
-
-  assert.deepEqual(values.map(isObject),
-                   expected,
-                  'null and undefined inherits default implementation ' +
-                  'rest from Object')
-
-  isObject.define(Function, function() { return false })
-  expected = expected.slice(0, 11).concat(false, false).concat(expected.slice(13))
-
-  assert.deepEqual(values.map(isObject), expected, 'functions inherit' +
-                   'implementations from functions');
-}
-
 exports['test dispatch not-implemented'] = function(assert) {
   var isDefault = Method()
   values.forEach(function(value) {
@@ -241,6 +214,29 @@ exports['test redefine for descendant'] = function(assert) {
 
   assert.ok(isFoo(ancestor), 'defined on ancestor')
   assert.ok(!isFoo(descendant), 'overrided for descendant')
+}
+
+exports['test on custom types'] = function(assert) {
+  function Foo() {}
+  var isFoo = Method()
+
+  isFoo.define(function() { return false })
+  isFoo.define(Foo, function() { return true })
+
+  assert.ok(!isFoo({}), "object is get's default implementation")
+  assert.ok(isFoo(new Foo()), "Foo type objects get own implementation")
+
+  var isObject = Method()
+  isObject.define(function() { return false })
+  isObject.define(Object, function() { return true })
+
+  assert.ok(isObject(new Foo()), "foo inherits implementation from object")
+
+
+  isObject.define(Foo, function() { return false })
+
+  assert.ok(!isObject(new Foo()),
+            "implementation inherited form object can be overrided")
 }
 
 if (require.main === module) require('test').run(exports)

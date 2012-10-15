@@ -119,14 +119,13 @@ var define = Method(function define(method, Type, lambda) {
   if (!lambda) return implement(method, Default, Type)
   if (!Type) return implement(method, Type, lambda)
   var type = typefy.call(Type.prototype)
-  return type !== "[object Object]" ? implement(method, Type.prototype, lambda) :
+  return type !== "[object Object]" ? implement(method,
+      Builtins[type] || (Builtins[type] = make(Builtins.Object)), lambda) :
     // This should be `Type === Object` but since it will be `false` for
     // `Object` from different JS context / compartment / frame we assume that
     // if it's name is `Object` it is Object.
     Type.name === "Object" ? implement(method, Builtins.Object, lambda) :
-    implement(method,
-              Builtins[type] || (Builtins[type] = make(Builtins.Object)),
-              lambda)
+    implement(method, Type.prototype, lambda)
 })
 
 var defineMethod = function defineMethod(Type, lambda) {
