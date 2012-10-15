@@ -17,8 +17,7 @@
   },
   "devDependencies": {
     "test": ">=0.4.4",
-    "repl-utils": ">=1.0.0",
-    "swank-js": ">=0.0.1"
+    "repl-utils": ">=1.0.0"
   },
   "scripts": {
     "test": "node tests/test-all.js",
