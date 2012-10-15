@@ -4,8 +4,17 @@
 'use strict';
 
 // Shortcuts for ES5 reflection functions.
-var create = Object.create
-var defineProperty = Object.defineProperty
+var make = Object.create || (function() {
+  var Type = function Type() {}
+  return function make(prototype) {
+    Type.prototype = prototype
+    return new Type()
+  }
+})
+var defineProperty = Object.defineProperty || function(object, name, property) {
+  object[name] = property.value
+  return object
+}
 
 function Method(base) {
   /**
@@ -78,16 +87,6 @@ function define(Type, Method, implementation) {
   return implement(Type && Type.prototype, Method, implementation)
 }
 
-Method.prototype = create(null, {
-  toString: { value: Object.prototype.toString },
-  valueOf: { value: Object.prototype.valueOf },
-  define: { value: function(Type, implementation) {
-    return define(Type, this, implementation)
-  }},
-  implement: { value: function(object, implementation) {
-    return implement(object, this, implementation)
-  }}
-})
 
 // Define objects where Methods implementations for `null`, `undefined` and 
 // defaults will be stored. Note that we create these objects from `null`,
