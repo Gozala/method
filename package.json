@@ -15,9 +15,6 @@
   "bugs": {
     "url": "http://github.com/Gozala/method/issues/"
   },
-  "dependencies": {
-    "name": ">=0.0.1"
-  },
   "devDependencies": {
     "test": ">=0.4.4",
     "repl-utils": ">=1.0.0",

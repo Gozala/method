@@ -3,8 +3,6 @@
          forin: true latedef: false globalstrict: true */
 'use strict';
 
-var Name = require('name')
-
 // Shortcuts for ES5 reflection functions.
 var create = Object.create
 var defineProperty = Object.defineProperty
@@ -18,7 +16,7 @@ function Method(base) {
 
   // Create an internal unique name if default implementation is passed,
   // use it's name as a name hint.
-  var name = Name(base && base.name).toString()
+  var name = (base && base.name || "") + Math.random().toString(32).substr(2)
 
   function dispatch() {
     // Method dispatches on type of the first argument.
