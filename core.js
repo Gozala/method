@@ -86,6 +86,10 @@ var Builtins = {
 Builtins[typefy.call(Object.prototype)] = Builtins.Object
 Builtins[typefy.call(Number.prototype)] = Builtins.Number
 Builtins[typefy.call(String.prototype)] = Builtins.String
+
+
+
+var implement = Method(
 function implement(method, object, lambda) {
   /**
   Implements `Method` for the given `object` with a provided `implementation`.
@@ -102,9 +106,9 @@ function implement(method, object, lambda) {
     writable: false,
     value: lambda
   })
-}
+})
 
-function define(method, Type, lambda) {
+var define = Method(function define(method, Type, lambda) {
   /**
   Defines `Method` for the given `Type` with a provided `implementation`.
   Calling `Method` with a first argument of this `Type` will dispatch on
@@ -123,7 +127,7 @@ function define(method, Type, lambda) {
     implement(method,
               Builtins[type] || (Builtins[type] = make(Builtins.Object)),
               lambda)
-}
+})
 
 var defineMethod = function defineMethod(Type, lambda) {
   return define(this, Type, lambda)
