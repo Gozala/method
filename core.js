@@ -15,6 +15,7 @@ var defineProperty = Object.defineProperty || function(object, name, property) {
   object[name] = property.value
   return object
 }
+var objectToString = Object.prototype.toString
 
 function Method(base) {
   /**
@@ -30,13 +31,18 @@ function Method(base) {
   function dispatch() {
     // Method dispatches on type of the first argument.
     var target = arguments[0]
+    var builtin = null
     // If first argument is `null` or `undefined` use associated property
-    // maps for implementation lookups, otherwise use first argument itself.
-    // Use default implementation lookup map if first argument does not
-    // implements Method itself.
+    // maps for implementation lookups, otherwise attempt to use implementation
+    // for built-in falling back for implementation on the first argument.
+    // Finally use default implementation if no other one is found.
     var implementation = target === null ? Null[name] :
                          target === undefined ? Undefined[name] :
-                         target[name] || Default[name]
+                         target[name] ||
+                         ((builtin = Builtins[objectToString.call(target)]) &&
+                          builtin[name]) ||
+                         Builtins.Object[name] ||
+                         Default[name]
 
     // If implementation not found there's not much we can do about it,
     // throw error with a descriptive message.
@@ -63,7 +69,26 @@ function Method(base) {
   return dispatch
 }
 
-function implement(object, Method, implementation) {
+// Define objects where Methods implementations for `null`, `undefined` and
+// defaults will be stored.
+var Default = {}
+var Null = make(Default)
+var Undefined = make(Default)
+// Implementation for built-in types are stored in the hash, this avoids
+// mutations on built-ins and allows cross frame extensions. Primitive types
+// are predefined so that `Object` extensions won't be inherited.
+var Builtins = {
+  Object: make(Default),
+  Number: make(Default),
+  String: make(Default),
+  Boolean: make(Default)
+}
+// Define aliases for predefined built-in maps to a forms that values will
+// be serialized on dispatch.
+Builtins[objectToString.call(Object.prototype)] = Builtins.Object
+Builtins[objectToString.call(Number.prototype)] = Builtins.Number
+Builtins[objectToString.call(String.prototype)] = Builtins.String
+function implement(method, object, lambda) {
   /**
   Implements `Method` for the given `object` with a provided `implementation`.
   Calling `Method` with `object` as a first argument will dispatch on provided
@@ -73,10 +98,15 @@ function implement(object, Method, implementation) {
                object === undefined ? Undefined :
                object
 
-  return defineProperty(target, Method.toString(), { value: implementation })
+  return defineProperty(target, method.toString(), {
+    enumerable: false,
+    configurable: false,
+    writable: false,
+    value: lambda
+  })
 }
 
-function define(Type, Method, implementation) {
+function define(method, Type, lambda) {
   /**
   Defines `Method` for the given `Type` with a provided `implementation`.
   Calling `Method` with a first argument of this `Type` will dispatch on
@@ -84,22 +114,25 @@ function define(Type, Method, implementation) {
   is defined. If `Type` is a `null` or `undefined` `Method` is implemented
   for that value type.
   **/
-  return implement(Type && Type.prototype, Method, implementation)
+  if (!Type) return implement(method, Type, lambda)
+  var type = objectToString.call(Type.prototype)
+  return type !== "[object Object]" ? implement(method, Type.prototype, lambda) :
+    // This should be `Type === Object` but since it will be `false` for
+    // `Object` from different JS context / compartment / frame we assume that
+    // if it's name is `Object` it is Object.
+    Type.name === "Object" ? implement(method, Builtins.Object, lambda) :
+    implement(method,
+              Builtins[type] || (Builtins[type] = make(Builtins.Object)),
+              lambda)
 }
 
+var defineMethod = function defineMethod(Type, lambda) {
+  return define(this, Type, lambda)
+}
+var implementMethod = function implementMethod(object, lambda) {
+  return implement(this, object, lambda)
+}
 
-// Define objects where Methods implementations for `null`, `undefined` and 
-// defaults will be stored. Note that we create these objects from `null`,
-// otherwise implementation from `Object` would have being inherited. Also
-// notice that `Default` implementations are stored on `Method.prototype` this
-// provides convenient way for defining default implementations.
-var Default = Method.prototype
-var Null = create(Default)
-var Undefined = create(Default)
-
-// Create Method shortcuts as for a faster access.
-var defineMethod = Default.define
-var implementMethod = Default.implement
 
 // Define exports on `Method` as it's only thing we export.
 Method.implement = implement
@@ -107,5 +140,7 @@ Method.define = define
 Method.Method = Method
 Method.Null = Null
 Method.Undefined = Undefined
+Method.Default = Default
+Method.Builtins = Builtins
 
 module.exports = Method
