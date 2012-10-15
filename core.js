@@ -112,6 +112,7 @@ function define(method, Type, lambda) {
   is defined. If `Type` is a `null` or `undefined` `Method` is implemented
   for that value type.
   **/
+  if (!lambda) return implement(method, Default, Type)
   if (!Type) return implement(method, Type, lambda)
   var type = typefy.call(Type.prototype)
   return type !== "[object Object]" ? implement(method, Type.prototype, lambda) :

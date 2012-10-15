@@ -62,7 +62,7 @@ exports['test all types inherit from default'] = function(assert) {
 
 exports['test default can be implemented later'] = function(assert) {
   var isImplemented = Method()
-  isImplemented.define(Method, function() {
+  isImplemented.define(function() {
     return true
   })
 
@@ -112,7 +112,7 @@ exports['test dispatch default'] = function(assert) {
   var isDefault = Method()
 
   // Implement default
-  isDefault.define(Method, True)
+  isDefault.define(True)
   assert.deepEqual(values.map(isDefault), trues,
                    'all implementation inherit from default')
 
@@ -122,7 +122,7 @@ exports['test dispatch null'] = function(assert) {
   var isNull = Method()
 
   // Implement default
-  isNull.define(Method, False)
+  isNull.define(False)
   isNull.define(null, True)
   assert.deepEqual(values.map(isNull),
                    [ true ].
@@ -134,7 +134,7 @@ exports['test dispatch undefined'] = function(assert) {
   var isUndefined = Method()
 
   // Implement default
-  isUndefined.define(Method, False)
+  isUndefined.define(False)
   isUndefined.define(undefined, True)
   assert.deepEqual(values.map(isUndefined),
                    [ false, true ].
@@ -146,7 +146,7 @@ exports['test dispatch object'] = function(assert) {
   var isObject = Method()
 
   // Implement default
-  isObject.define(Method, False)
+  isObject.define(False)
   isObject.define(Object, True)
   assert.deepEqual(values.map(isObject),
                    [ false, false ].
@@ -160,7 +160,7 @@ exports['test dispatch object'] = function(assert) {
 
 exports['test dispatch number'] = function(assert) {
   var isNumber = Method()
-  isNumber.define(Method, False)
+  isNumber.define(False)
   isNumber.define(Number, True)
 
   assert.deepEqual(values.map(isNumber),
@@ -172,7 +172,7 @@ exports['test dispatch number'] = function(assert) {
 
 exports['test dispatch string'] = function(assert) {
   var isString = Method()
-  isString.define(Method, False)
+  isString.define(False)
   isString.define(String, True)
 
   assert.deepEqual(values.map(isString),
@@ -183,7 +183,7 @@ exports['test dispatch string'] = function(assert) {
 
 exports['test dispatch function'] = function(assert) {
   var isFunction = Method()
-  isFunction.define(Method, False)
+  isFunction.define(False)
   isFunction.define(Function, True)
 
   assert.deepEqual(values.map(isFunction),
@@ -196,7 +196,7 @@ exports['test dispatch function'] = function(assert) {
 
 exports['test dispatch date'] = function(assert) {
   var isDate = Method()
-  isDate.define(Method, False)
+  isDate.define(False)
   isDate.define(Date, True)
 
   assert.deepEqual(values.map(isDate),
@@ -209,7 +209,7 @@ exports['test dispatch date'] = function(assert) {
 
 exports['test dispatch RegExp'] = function(assert) {
   var isRegExp = Method()
-  isRegExp.define(Method, False)
+  isRegExp.define(False)
   isRegExp.define(RegExp, True)
 
   assert.deepEqual(values.map(isRegExp),
