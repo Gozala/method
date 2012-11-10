@@ -1,80 +1,114 @@
 "use strict";
 
-// Shortcuts for ES5 reflection functions.
-var make = Object.create || (function() {
-  var Type = function Type() {}
-  return function make(prototype) {
-    Type.prototype = prototype
-    return new Type()
-  }
-})
 var defineProperty = Object.defineProperty || function(object, name, property) {
   object[name] = property.value
   return object
 }
+
+// Shortcut for `Object.prototype.toString` for faster access.
 var typefy = Object.prototype.toString
 
-var types = {
-  "function": "Object:",
-  "object": "Object:"
-}
+// Map to for jumping from typeof(value) to associated type prefix used
+// as a hash in the map of builtin implementations.
+var types = { "function": "Object:", "object": "Object:" }
+
+// Array is used to save method implementations for the host objects in order
+// to avoid extending them with non-primitive values that could cause leaks.
+var host = []
+// Hash map is used to save method implementations for builtin types in order
+// to avoid extending their prototypes. This also allows to share method
+// implementations for types across diff contexts / frames / compartments.
+var builtin = {}
+
 
 function Method(hint) {
   /**
   Private Method is a callable private name that dispatches on the first
-  arguments same named Method: Method(...rest) => rest[0][Method](...rest)
-  Default implementation may be passed in as an argument.
+  arguments same named Method:
+
+      method(object, ...rest) => object[method](...rest)
+
+  Optionally hint string may be provided that will be used in generated names
+  to ease debugging.
+
+  ## Example
+
+      var foo = Method()
+
+      // Implementation for any types
+      foo.define(function(value, arg1, arg2) {
+        // ...
+      })
+
+      // Implementation for a specific type
+      foo.define(BarType, function(bar, arg1, arg2) {
+        // ...
+      })
   **/
 
-  // Create an internal unique name if default implementation is passed,
-  // use it"s name as a name hint.
-  var prefix = typeof(hint) === "string" ? hint : ""
-  var name = prefix + "#" + Math.random().toString(32).substr(2)
+  // Create an internal unique name if `hint` is provided it is used to
+  // prefix name to ease debugging.
+  var name = (hint || "") + "#" + Math.random().toString(32).substr(2)
 
-  function dispatch() {
+  function dispatch(value) {
     // Method dispatches on type of the first argument.
-    var target = arguments[0]
-    // If first argument is `null` or `undefined` use associated property
-    // maps for implementation lookups, otherwise attempt to use implementation
-    // for built-in falling back for implementation on the first argument.
-    // Finally use default implementation if no other one is found.
-    var method = target === null ? builtin["Null:" + name] :
-                 target === void(0) ? builtin["Void:" + name] :
-                 target[name] ||
-                 host[target["!" + name]] ||
-                 (target.constructor ? builtin[target.constructor.name + ":" + name] : null) ||
-                 builtin[types[typeof(target)] + name]
+    // If first argument is `null` or `void` associated implementation is
+    // looked up in the `builtin` hash where implementations for built-ins
+    // are stored.
+    var method = value === null ? builtin["Null:" + name] :
+                 value === void(0) ? builtin["Void:" + name] :
+                 // Otherwise attempt to use method with a generated private
+                 // `name` that is supposedly in the prototype chain of the
+                 // `target`.
+                 value[name] ||
+                 // Otherwise assume it's one of the built-in type instances,
+                 // in which case implementation is stored in a `builtin` hash.
+                 // Assemble a key for the given value and attempt to get
+                 // implementation from the `builtin` hash.
+                 builtin[value.constructor &&
+                         value.constructor.name + ":" + name] ||
+                 // Otherwise assume it's a host object. For host objects
+                 // actual method implementations are stored in the `host`
+                 // array and only index for the implementation is stored
+                 // in the host object's prototype chain. This avoids memory
+                 // leaks that otherwise could happen when saving JS objects
+                 // on host object.
+                 host[value["!" + name]] ||
+                 // Otherwise attempt to lookup implementation for builtins by
+                 // a type of the value. This basically makes sure that all
+                 // non primitive values will delegate to an `Object`.
+                 builtin[types[typeof(value)] + name]
 
+
+    // If method implementation for the type is still not found then
+    // just fallback for default implementation.
     method = method || builtin["Default:" + name]
 
 
-    // If implementation not found there"s not much we can do about it,
-    // throw error with a descriptive message.
-    if (!method) throw Error("Type does not implements method")
+    // If implementation is still not found (which also means there is no
+    // default) just throw an error with a descriptive message.
+    if (!method) throw TypeError("Type does not implements method: " + name)
 
-    // If implementation is found delegate to it.
+    // If implementation was found then just delegate.
     return method.apply(method, arguments)
   }
 
-  if (typeof(hint) === "function")
-    builtin["Default:" + name] = hint
-
-  // Define `Method.toString` returning private name, this hack will enable
-  // Method definition like follows:
-  // var foo = Method()
-  // object[foo] = function() { /***/ }
+  // Make `toString` of the dispatch return a private name, this enables
+  // method definition without sugar:
+  //
+  //    var method = Method()
+  //    object[method] = function() { /***/ }
   dispatch.toString = function toString() { return name }
 
-  // Copy utility Methods for convenient API.
+  // Copy utility methods for convenient API.
   dispatch.implement = implementMethod
   dispatch.define = defineMethod
 
   return dispatch
 }
 
-var host = []
-var builtin = {}
-
+// Define `implement` and `define` polymorphic methods to allow definitions
+// and implementations through them.
 var implement = Method()
 var define = Method()
 
@@ -101,26 +135,45 @@ function _define(method, Type, lambda) {
   is defined. If `Type` is a `null` or `undefined` `Method` is implemented
   for that value type.
   **/
+
+  // Attempt to guess a type via `Object.prototype.toString.call` hack.
   var type = Type && typefy.call(Type.prototype)
+
+  // If only two arguments are passed then `Type` is actually an implementation
+  // for a default type.
   if (!lambda) builtin["Default:" + method] = Type
+  // If `Type` is `null` or `void` store accordingly in the hash map.
   else if (Type === null) builtin["Null:" + method] = lambda
   else if (Type === void(0)) builtin["Void:" + method] = lambda
+  // If `type` hack indicates special type and type has a name us it to
+  // store a implementation into builtins hash map.
   else if (type !== "[object Object]" && Type.name)
     builtin[Type.name + ":" + method] = lambda
+  // If `type` hack indicates and object that may be either object or any
+  // JS defined "Class". If name of it is `Object` we assume it's built-in
+  // `Object` and not a custom `Type`.
   else if (Type.name === "Object")
     builtin["Object:" + method] = lambda
-  // Host objects are pain! Every browser does some crazy stuff with it
-  // so far they all seem to agree that host objects should not have `call`
-  // method.
+  // Host objects are pain!!! Every browser does some crazy stuff for them
+  // So far all browser seem to not implement `call` method for host object
+  // constructors. If that is a case here, assume it's a host object and
+  // store implementation in a `host` array and store `index` in the array
+  // in a `Type.prototype` itself. This avoids memory leaks that could be
+  // caused by storing JS objects on a host objects.
   else if (Type.call === void(0)) {
     var index = host.indexOf(lambda)
     if (index < 0) index = host.push(lambda) - 1
+    // Prefix private name with `!` so it can be dispatched from the method
+    // without type checks.
     implement("!" + method, Type.prototype, index)
   }
+  // If Got that far `Type` is user defined JS `Class`. Define private name
+  // as hidden property on it's prototype.
   else
     implement(method, Type.prototype, lambda)
 }
 
+// Create method shortcuts form functions.
 var defineMethod = function defineMethod(Type, lambda) {
   return _define(this, Type, lambda)
 }
@@ -128,10 +181,11 @@ var implementMethod = function implementMethod(object, lambda) {
   return _implement(this, object, lambda)
 }
 
+// And provided implementations for a polymorphic equivalents.
 _define(define, _define)
 _define(implement, _implement)
 
-// Define exports on `Method` as it's only thing we export.
+// Define exports on `Method` as it's only thing being exported.
 Method.implement = implement
 Method.define = define
 Method.Method = Method
