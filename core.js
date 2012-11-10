@@ -41,7 +41,7 @@ function Method(hint) {
     var method = target === null ? builtin["Null:" + name] :
                  target === void(0) ? builtin["Void:" + name] :
                  target[name] ||
-                 implementation[target["!" + name]] ||
+                 host[target["!" + name]] ||
                  (target.constructor ? builtin[target.constructor.name + ":" + name] : null) ||
                  builtin[types[typeof(target)] + name]
 
@@ -72,7 +72,7 @@ function Method(hint) {
   return dispatch
 }
 
-var implementation = {}
+var host = []
 var builtin = {}
 
 var implement = Method()
@@ -109,6 +109,14 @@ function _define(method, Type, lambda) {
     builtin[Type.name + ":" + method] = lambda
   else if (Type.name === "Object")
     builtin["Object:" + method] = lambda
+  // Host objects are pain! Every browser does some crazy stuff with it
+  // so far they all seem to agree that host objects should not have `call`
+  // method.
+  else if (Type.call === void(0)) {
+    var index = host.indexOf(lambda)
+    if (index < 0) index = host.push(lambda) - 1
+    implement("!" + method, Type.prototype, index)
+  }
   else
     implement(method, Type.prototype, lambda)
 }
@@ -128,6 +136,6 @@ Method.implement = implement
 Method.define = define
 Method.Method = Method
 Method.builtin = builtin
-Method.implementation = implementation
+Method.host = host
 
 module.exports = Method
