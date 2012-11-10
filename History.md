@@ -1,5 +1,13 @@
 # Changes
 
+## 1.0.0 / 2012-11-09
+
+  - Add browser test integration.
+  - Fix cross-browser incompatibilities & test failures.
+  - Add support for host objects.
+  - Add optional `hint` argument for method to ease debugging.
+  - Remove default implementation at definition time.
+
 ## 0.1.1 / 2012-10-15
 
  - Fix regression causing custom type implementation to be stored on objects.

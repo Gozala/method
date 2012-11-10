@@ -22,7 +22,7 @@ of interference with other libraries.
 ## Use
 
 ```js
-var Method = require('method')
+var Method = require("method")
 
 // Define `isWatchable` method that can be implemented for any type.
 var isWatchable = Method()
@@ -41,14 +41,14 @@ isWatchable({}) // => false
 
 
 // Although `isWatchable` property above will be enumerable and there for
-// may damage some assumbtions made by other libraries. There for it's
+// may damage some assumbtions made by other libraries. There for it"s
 // recomended to use built-in helpers methods that will define extension
 // without breaking assumbtions made by other libraries:
 
 isWatchable.define(Object, function() { return false })
 
 
-// There are primitive types in JS that won't inherit methods from Object:
+// There are primitive types in JS that won"t inherit methods from Object:
 isWatchable(null) // => Exception: Method is not implemented
 
 // One could either implement methods for such types:
@@ -113,5 +113,5 @@ emit.define(Port, function(port, message) {
 
 var p = new Port()
 watch(p, console.log)
-emit(p, 'hello world') // => info: "hello world"
+emit(p, "hello world") // => info: "hello world"
 ```
