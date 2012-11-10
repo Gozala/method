@@ -3,7 +3,13 @@
   "id": "method",
   "version": "0.1.1",
   "description": "Functional polymorphic method dispatch",
-  "keywords": [ "method", "dispatch", "protocol", "polymorphism", "type dispatch" ],
+  "keywords": [
+    "method",
+    "dispatch",
+    "protocol",
+    "polymorphism",
+    "type dispatch"
+  ],
   "author": "Irakli Gozalishvili <rfobic@gmail.com> (http://jeditoolkit.com)",
   "homepage": "https://github.com/Gozala/method",
   "main": "./core.js",
@@ -16,16 +22,20 @@
     "url": "http://github.com/Gozala/method/issues/"
   },
   "devDependencies": {
-    "test": ">=0.4.4",
-    "repl-utils": ">=1.0.0"
+    "test": "~0.x.0",
+    "repl-utils": ">=1.0.0",
+    "phantomify": "~0.1.0"
   },
   "scripts": {
-    "test": "node tests/test-all.js",
-    "repl": "node node_modules/repl-utils",
-    "swank": "node node_modules/swank-js"
+    "test": "npm run test-node && npm run test-browser",
+    "test-browser": "node ./node_modules/phantomify/bin/cmd.js ./test/index.js",
+    "test-node": "node ./test/index.js",
+    "repl": "node node_modules/repl-utils"
   },
-  "licenses": [{
-    "type" : "MIT",
-    "url" : "https://github.com/Gozala/method/License.md"
-  }]
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/Gozala/method/License.md"
+    }
+  ]
 }
