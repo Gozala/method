@@ -28,8 +28,8 @@
   },
   "scripts": {
     "test": "npm run test-node && npm run test-browser",
-    "test-browser": "node ./node_modules/phantomify/bin/cmd.js ./test/index.js",
-    "test-node": "node ./test/index.js",
+    "test-browser": "node ./node_modules/phantomify/bin/cmd.js ./test/browser.js",
+    "test-node": "node ./test/common.js",
     "repl": "node node_modules/repl-utils"
   },
   "licenses": [
