@@ -1,7 +1,7 @@
 {
   "name": "method",
   "id": "method",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "description": "Functional polymorphic method dispatch",
   "keywords": [
     "method",
