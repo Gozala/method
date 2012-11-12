@@ -220,4 +220,19 @@ exports["test on custom types"] = function(assert) {
             "implementation inherited form object can be overrided")
 }
 
+
+exports["test error types"] = function(assert) {
+  var isError = Method("isError")
+  isError.define(function() { return false })
+  isError.define(Error, function() { return true })
+
+  assert.ok(isError(Error("boom")), "error is error")
+  assert.ok(isError(TypeError("boom")), "type error is an error")
+  assert.ok(isError(EvalError("boom")), "eval error is an error")
+  assert.ok(isError(RangeError("boom")), "range error is an error")
+  assert.ok(isError(ReferenceError("boom")), "reference error is an error")
+  assert.ok(isError(SyntaxError("boom")), "syntax error is an error")
+  assert.ok(isError(URIError("boom")), "URI error is an error")
+}
+
 require("test").run(exports)

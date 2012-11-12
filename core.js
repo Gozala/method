@@ -10,7 +10,7 @@ var typefy = Object.prototype.toString
 
 // Map to for jumping from typeof(value) to associated type prefix used
 // as a hash in the map of builtin implementations.
-var types = { "function": "Object:", "object": "Object:" }
+var types = { "function": "Object", "object": "Object" }
 
 // Array is used to save method implementations for the host objects in order
 // to avoid extending them with non-primitive values that could cause leaks.
@@ -19,6 +19,31 @@ var host = []
 // to avoid extending their prototypes. This also allows to share method
 // implementations for types across diff contexts / frames / compartments.
 var builtin = {}
+
+function Primitive() {}
+function ObjectType() {}
+ObjectType.prototype = new Primitive()
+function ErrorType() {}
+ErrorType.prototype = new ObjectType()
+
+var Default = builtin.Default = Primitive.prototype
+var Null = builtin.Null = new Primitive()
+var Void = builtin.Void = new Primitive()
+builtin.String = new Primitive()
+builtin.Number = new Primitive()
+builtin.Boolean = new Primitive()
+
+builtin.Object = ObjectType.prototype
+builtin.Error = ErrorType.prototype
+
+builtin.EvalError = new ErrorType()
+builtin.InternalError = new ErrorType()
+builtin.RangeError = new ErrorType()
+builtin.ReferenceError = new ErrorType()
+builtin.StopIteration = new ErrorType()
+builtin.SyntaxError = new ErrorType()
+builtin.TypeError = new ErrorType()
+builtin.URIError = new ErrorType()
 
 
 function Method(hint) {
@@ -55,18 +80,19 @@ function Method(hint) {
     // If first argument is `null` or `void` associated implementation is
     // looked up in the `builtin` hash where implementations for built-ins
     // are stored.
-    var method = value === null ? builtin["Null:" + name] :
-                 value === void(0) ? builtin["Void:" + name] :
+    var type = null
+    var method = value === null ? Null[name] :
+                 value === void(0) ? Void[name] :
                  // Otherwise attempt to use method with a generated private
                  // `name` that is supposedly in the prototype chain of the
                  // `target`.
                  value[name] ||
                  // Otherwise assume it's one of the built-in type instances,
                  // in which case implementation is stored in a `builtin` hash.
-                 // Assemble a key for the given value and attempt to get
-                 // implementation from the `builtin` hash.
-                 builtin[value.constructor &&
-                         value.constructor.name + ":" + name] ||
+                 // Attempt to find a implementation for the given built-in
+                 // via constructor name and method name.
+                 ((type = builtin[(value.constructor || "").name]) &&
+                  type[name]) ||
                  // Otherwise assume it's a host object. For host objects
                  // actual method implementations are stored in the `host`
                  // array and only index for the implementation is stored
@@ -77,12 +103,12 @@ function Method(hint) {
                  // Otherwise attempt to lookup implementation for builtins by
                  // a type of the value. This basically makes sure that all
                  // non primitive values will delegate to an `Object`.
-                 builtin[types[typeof(value)] + name]
+                 ((type = builtin[types[typeof(value)]]) && type[name])
 
 
     // If method implementation for the type is still not found then
     // just fallback for default implementation.
-    method = method || builtin["Default:" + name]
+    method = method || Default[name]
 
 
     // If implementation is still not found (which also means there is no
@@ -109,8 +135,8 @@ function Method(hint) {
 
 // Define `implement` and `define` polymorphic methods to allow definitions
 // and implementations through them.
-var implement = Method()
-var define = Method()
+var implement = Method("implement")
+var define = Method("define")
 
 
 function _implement(method, object, lambda) {
@@ -141,19 +167,22 @@ function _define(method, Type, lambda) {
 
   // If only two arguments are passed then `Type` is actually an implementation
   // for a default type.
-  if (!lambda) builtin["Default:" + method] = Type
-  // If `Type` is `null` or `void` store accordingly in the hash map.
-  else if (Type === null) builtin["Null:" + method] = lambda
-  else if (Type === void(0)) builtin["Void:" + method] = lambda
-  // If `type` hack indicates special type and type has a name us it to
-  // store a implementation into builtins hash map.
-  else if (type !== "[object Object]" && Type.name)
-    builtin[Type.name + ":" + method] = lambda
-  // If `type` hack indicates and object that may be either object or any
-  // JS defined "Class". If name of it is `Object` we assume it's built-in
-  // `Object` and not a custom `Type`.
+  if (!lambda) Default[method] = Type
+  // If `Type` is `null` or `void` store implementation accordingly.
+  else if (Type === null) Null[method] = lambda
+  else if (Type === void(0)) Void[method] = lambda
+  // If `type` hack indicates built-in type and type has a name us it to
+  // store a implementation into associated hash. If hash for this type does
+  // not exists yet create one.
+  else if (type !== "[object Object]" && Type.name) {
+    var Bulitin = builtin[Type.name] || (builtin[Type.name] = new ObjectType())
+    Bulitin[method] = lambda
+  }
+  // If `type` hack indicates an object, that may be either object or any
+  // JS defined "Class". If name of the constructor is `Object`, assume it's
+  // built-in `Object` and store implementation accordingly.
   else if (Type.name === "Object")
-    builtin["Object:" + method] = lambda
+    builtin.Object[method] = lambda
   // Host objects are pain!!! Every browser does some crazy stuff for them
   // So far all browser seem to not implement `call` method for host object
   // constructors. If that is a case here, assume it's a host object and
