@@ -1,7 +1,7 @@
 {
   "name": "method",
   "id": "method",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Functional polymorphic method dispatch",
   "keywords": [
     "method",
@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "test": "~0.x.0",
-    "repl-utils": ">=1.0.0",
+    "repl-utils": "~1.0.0",
     "phantomify": "~0.1.0"
   },
   "scripts": {

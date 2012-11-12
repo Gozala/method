@@ -1,5 +1,10 @@
 # Changes
 
+## 1.0.1 / 2012-11-11
+
+  - Fix issues with different `Error` types as they all inherit from
+    `Error`.
+
 ## 1.0.0 / 2012-11-09
 
   - Add browser test integration.
