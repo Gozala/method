@@ -22,14 +22,14 @@ of interference with other libraries.
 ## Use
 
 ```js
-var Method = require("method")
+var method = require("method")
 
 // Define `isWatchable` method that can be implemented for any type.
-var isWatchable = Method()
+var isWatchable = method("isWatchable")
 
 // If you call it on any object it will
 // throw as nothing implements that method yet.
-//isWatchable({}) // => Exception: Method is not implemented
+//isWatchable({}) // => Exception: method is not implemented
 
 // If you define private method on `Object.prototype`
 // all objects will inherit it.
@@ -49,7 +49,7 @@ isWatchable.define(Object, function() { return false })
 
 
 // There are primitive types in JS that won"t inherit methods from Object:
-isWatchable(null) // => Exception: Method is not implemented
+isWatchable(null) // => Exception: method is not implemented
 
 // One could either implement methods for such types:
 isWatchable.define(null, function() { return false })
@@ -59,7 +59,7 @@ isWatchable.define(undefined, function() { return false })
 isWatchable.define(function() { return false })
 
 // Alternatively default implementation may be provided at creation:
-isWatchable = Method(function() { return false })
+isWatchable = method(function() { return false })
 
 // Method dispatches on an first argument type. That allows us to create
 // new types with an alternative implementations:
@@ -78,13 +78,13 @@ function watchable(object) {
 isWatchable(watchable({})) // => true
 
 // Full protocols can be defined with such methods:
-var _watchers = Method()
-var watchers = Method()
-var watch = Method()
-var unwatch = Method()
+var observers = "observers@" + module.filename
+var watchers = method("watchers")
+var watch = method("watch")
+var unwatch = method("unwatch")
 
 watchers.define(Watchable, function(target) {
-  return target[_watchers] || (target[_watchers] = [])
+  return target[observers] || (target[observers] = [])
 })
 
 watch.define(Watchable, function(target, watcher) {
@@ -104,7 +104,7 @@ unwatch.define(Watchable, function(target, watcher) {
 function Port() {}
 Port.prototype = Object.create(Watchable.prototype)
 
-var emit = Method()
+var emit = method("emit")
 emit.define(Port, function(port, message) {
   watchers(port).slice().forEach(function(watcher) {
     watcher(message)
