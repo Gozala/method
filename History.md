@@ -1,5 +1,10 @@
 # Changes
 
+## 1.0.2 / 2012-12-26
+
+  - Delegate to polymorphic methods from `.define` and `.implement` so, they
+    can be overidden.
+
 ## 1.0.1 / 2012-11-11
 
   - Fix issues with different `Error` types as they all inherit from
