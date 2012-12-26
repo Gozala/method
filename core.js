@@ -133,6 +133,14 @@ function Method(hint) {
   return dispatch
 }
 
+// Create method shortcuts form functions.
+var defineMethod = function defineMethod(Type, lambda) {
+  return define(this, Type, lambda)
+}
+var implementMethod = function implementMethod(object, lambda) {
+  return implement(this, object, lambda)
+}
+
 // Define `implement` and `define` polymorphic methods to allow definitions
 // and implementations through them.
 var implement = Method("implement")
@@ -202,14 +210,6 @@ function _define(method, Type, lambda) {
     implement(method, Type.prototype, lambda)
 }
 
-// Create method shortcuts form functions.
-var defineMethod = function defineMethod(Type, lambda) {
-  return _define(this, Type, lambda)
-}
-var implementMethod = function implementMethod(object, lambda) {
-  return _implement(this, object, lambda)
-}
-
 // And provided implementations for a polymorphic equivalents.
 _define(define, _define)
 _define(implement, _implement)
@@ -218,6 +218,7 @@ _define(implement, _implement)
 Method.implement = implement
 Method.define = define
 Method.Method = Method
+Method.method = Method
 Method.builtin = builtin
 Method.host = host
 

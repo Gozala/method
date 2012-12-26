@@ -235,4 +235,38 @@ exports["test error types"] = function(assert) {
   assert.ok(isError(URIError("boom")), "URI error is an error")
 }
 
+exports["test override define polymorphic method"] = function(assert) {
+  var define = Method.define
+  var implement = Method.implement
+
+  var fn = Method("fn")
+  var methods = {}
+  implement(define, fn, function(method, label, implementation) {
+    methods[label] = implementation
+  })
+
+  function foo() {}
+
+  define(fn, "foo-case", foo)
+
+  assert.equal(methods["foo-case"], foo, "define set property")
+}
+
+exports["test override define via method API"] = function(assert) {
+  var define = Method.define
+  var implement = Method.implement
+
+  var fn = Method("fn")
+  var methods = {}
+  define.implement(fn, function(method, label, implementation) {
+    methods[label] = implementation
+  })
+
+  function foo() {}
+
+  define(fn, "foo-case", foo)
+
+  assert.equal(methods["foo-case"], foo, "define set property")
+}
+
 require("test").run(exports)
