@@ -73,7 +73,7 @@ function Method(hint) {
 
   // Create an internal unique name if `hint` is provided it is used to
   // prefix name to ease debugging.
-  var name = (hint || "") + "#" + Math.random().toString(32).substr(2)
+  var name = hint
 
   function dispatch(value) {
     // Method dispatches on type of the first argument.
@@ -148,6 +148,10 @@ var define = Method("define")
 
 
 function _implement(method, object, lambda) {
+  if (object[method.toString()]) {
+    return
+  }
+  
   /**
   Implements `Method` for the given `object` with a provided `implementation`.
   Calling `Method` with `object` as a first argument will dispatch on provided
@@ -183,8 +187,8 @@ function _define(method, Type, lambda) {
   // store a implementation into associated hash. If hash for this type does
   // not exists yet create one.
   else if (type !== "[object Object]" && Type.name) {
-    var Bulitin = builtin[Type.name] || (builtin[Type.name] = new ObjectType())
-    Bulitin[method] = lambda
+    var Builtin = builtin[Type.name] || (builtin[Type.name] = new ObjectType())
+    Builtin[method] = lambda
   }
   // If `type` hack indicates an object, that may be either object or any
   // JS defined "Class". If name of the constructor is `Object`, assume it's
