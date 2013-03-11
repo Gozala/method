@@ -1,5 +1,20 @@
 "use strict";
 
+function nameRandomly(hint, module) {
+  var prefix = Math.random().toString(32).substr(2)
+  var suffix = hint || "anonymous"
+  return hint + "#" + suffix
+}
+
+function nameAfterOwner(hint, module) {
+  var prefix = module.parent.id.split("node_modules").pop()
+  var suffix = hint || "anonymous"
+  return prefix + "#" + suffix
+}
+
+var nameUnique = typeof(process) !== "undefined" ? nameAfterOwner : nameRandomly
+var makeName = global["name@method"] || nameUnique
+
 var defineProperty = Object.defineProperty || function(object, name, property) {
   object[name] = property.value
   return object
@@ -73,7 +88,7 @@ function Method(hint) {
 
   // Create an internal unique name if `hint` is provided it is used to
   // prefix name to ease debugging.
-  var name = (hint || "") + "#" + Math.random().toString(32).substr(2)
+  var name = makeName(hint, module)
 
   function dispatch(value) {
     // Method dispatches on type of the first argument.
