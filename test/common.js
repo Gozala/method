@@ -37,7 +37,7 @@ var trues = values.map(True)
 var falses = values.map(False)
 
 exports["test throws if not implemented"] = function(assert) {
-  var method = Method("nope")
+  var method = Method("nope#1")
 
   assert.throws(function() {
     method({})
@@ -49,7 +49,7 @@ exports["test throws if not implemented"] = function(assert) {
 }
 
 exports["test all types inherit from default"] = function(assert) {
-  var isImplemented = Method("isImplemented")
+  var isImplemented = Method("isImplemented#2")
   isImplemented.define(function() { return true })
 
   values.forEach(function(value) {
@@ -59,7 +59,7 @@ exports["test all types inherit from default"] = function(assert) {
 }
 
 exports["test default can be implemented later"] = function(assert) {
-  var isImplemented = Method("isImplemented")
+  var isImplemented = Method("isImplemented#3")
   isImplemented.define(function() {
     return true
   })
@@ -71,7 +71,7 @@ exports["test default can be implemented later"] = function(assert) {
 }
 
 exports["test dispatch not-implemented"] = function(assert) {
-  var isDefault = Method("isDefault")
+  var isDefault = Method("isDefault#4")
   values.forEach(function(value) {
     assert.throws(function() {
       isDefault(value)
@@ -80,7 +80,7 @@ exports["test dispatch not-implemented"] = function(assert) {
 }
 
 exports["test dispatch default"] = function(assert) {
-  var isDefault = Method("isDefault")
+  var isDefault = Method("isDefault#5")
 
   // Implement default
   isDefault.define(True)
@@ -90,7 +90,7 @@ exports["test dispatch default"] = function(assert) {
 }
 
 exports["test dispatch null"] = function(assert) {
-  var isNull = Method("isNull")
+  var isNull = Method("isNull#6")
 
   // Implement default
   isNull.define(False)
@@ -102,7 +102,7 @@ exports["test dispatch null"] = function(assert) {
 }
 
 exports["test dispatch undefined"] = function(assert) {
-  var isUndefined = Method("isUndefined")
+  var isUndefined = Method("isUndefined#7")
 
   // Implement default
   isUndefined.define(False)
@@ -114,7 +114,7 @@ exports["test dispatch undefined"] = function(assert) {
 }
 
 exports["test dispatch object"] = function(assert) {
-  var isObject = Method("isObject")
+  var isObject = Method("isObject#8")
 
   // Implement default
   isObject.define(False)
@@ -128,7 +128,7 @@ exports["test dispatch object"] = function(assert) {
 }
 
 exports["test dispatch number"] = function(assert) {
-  var isNumber = Method("isNumber")
+  var isNumber = Method("isNumber#9")
   isNumber.define(False)
   isNumber.define(Number, True)
 
@@ -140,7 +140,7 @@ exports["test dispatch number"] = function(assert) {
 }
 
 exports["test dispatch string"] = function(assert) {
-  var isString = Method("isString")
+  var isString = Method("isString#10")
   isString.define(False)
   isString.define(String, True)
 
@@ -151,7 +151,7 @@ exports["test dispatch string"] = function(assert) {
 }
 
 exports["test dispatch function"] = function(assert) {
-  var isFunction = Method("isFunction")
+  var isFunction = Method("isFunction#11")
   isFunction.define(False)
   isFunction.define(Function, True)
 
@@ -163,7 +163,7 @@ exports["test dispatch function"] = function(assert) {
 }
 
 exports["test dispatch date"] = function(assert) {
-  var isDate = Method("isDate")
+  var isDate = Method("isDate#12")
   isDate.define(False)
   isDate.define(Date, True)
 
@@ -175,7 +175,7 @@ exports["test dispatch date"] = function(assert) {
 }
 
 exports["test dispatch RegExp"] = function(assert) {
-  var isRegExp = Method("isRegExp")
+  var isRegExp = Method("isRegExp#13")
   isRegExp.define(False)
   isRegExp.define(RegExp, True)
 
@@ -187,7 +187,7 @@ exports["test dispatch RegExp"] = function(assert) {
 }
 
 exports["test redefine for descendant"] = function(assert) {
-  var isFoo = Method("isFoo")
+  var isFoo = Method("isFoo#14")
   var ancestor = {}
   isFoo.implement(ancestor, function() { return true })
   var descendant = Object.create(ancestor)
@@ -199,7 +199,7 @@ exports["test redefine for descendant"] = function(assert) {
 
 exports["test on custom types"] = function(assert) {
   function Bar() {}
-  var isBar = Method("isBar")
+  var isBar = Method("isBar#15")
 
   isBar.define(function() { return false })
   isBar.define(Bar, function() { return true })
@@ -207,7 +207,7 @@ exports["test on custom types"] = function(assert) {
   assert.ok(!isBar({}), "object is get's default implementation")
   assert.ok(isBar(new Bar()), "Foo type objects get own implementation")
 
-  var isObject = Method("isObject")
+  var isObject = Method("isObject#15")
   isObject.define(function() { return false })
   isObject.define(Object, function() { return true })
 
@@ -222,7 +222,7 @@ exports["test on custom types"] = function(assert) {
 
 
 exports["test error types"] = function(assert) {
-  var isError = Method("isError")
+  var isError = Method("isError#16")
   isError.define(function() { return false })
   isError.define(Error, function() { return true })
 
@@ -239,7 +239,7 @@ exports["test override define polymorphic method"] = function(assert) {
   var define = Method.define
   var implement = Method.implement
 
-  var fn = Method("fn")
+  var fn = Method("fn#17")
   var methods = {}
   implement(define, fn, function(method, label, implementation) {
     methods[label] = implementation
@@ -256,7 +256,7 @@ exports["test override define via method API"] = function(assert) {
   var define = Method.define
   var implement = Method.implement
 
-  var fn = Method("fn")
+  var fn = Method("fn#18")
   var methods = {}
   define.implement(fn, function(method, label, implementation) {
     methods[label] = implementation

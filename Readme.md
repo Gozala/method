@@ -2,10 +2,14 @@
 
 [![Build Status](https://secure.travis-ci.org/Gozala/method.png)](http://travis-ci.org/Gozala/method)
 
+
+[![Browser support](http://ci.testling.com/Gozala/method.png)](http://ci.testling.com/Gozala/method)
+
+
 Library provides an API for defining polymorphic methods that dispatch on the
 first argument type. This provides a powerful way for decouple abstraction
-interface definition from an actual implementation per type, without risks
-of interference with other libraries.
+interface definition from an actual implementations per type / instance,
+without risks of interference with other libraries.
 
 ### Motivation
 
@@ -25,7 +29,11 @@ of interference with other libraries.
 var method = require("method")
 
 // Define `isWatchable` method that can be implemented for any type.
-var isWatchable = method("isWatchable")
+// Use some UNIQUE identifer for the method to avoid any naming collisions.
+// If not provided one will be generate but with npm it's easy to end up
+// with copies of same library and there for copies of the same function
+// leading to surprises. So just really pick a name that is unique!
+var isWatchable = method("isWatchable@watchables")
 
 // If you call it on any object it will
 // throw as nothing implements that method yet.
@@ -79,9 +87,9 @@ isWatchable(watchable({})) // => true
 
 // Full protocols can be defined with such methods:
 var observers = "observers@" + module.filename
-var watchers = method("watchers")
-var watch = method("watch")
-var unwatch = method("unwatch")
+var watchers = method("watchers@watchables")
+var watch = method("watch@watchables")
+var unwatch = method("unwatch@watchables")
 
 watchers.define(Watchable, function(target) {
   return target[observers] || (target[observers] = [])

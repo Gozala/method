@@ -1,20 +1,5 @@
 "use strict";
 
-function nameRandomly(hint, module) {
-  var prefix = Math.random().toString(32).substr(2)
-  var suffix = hint || "anonymous"
-  return hint + "#" + suffix
-}
-
-function nameAfterOwner(hint, module) {
-  var prefix = module.parent.id.split("node_modules").pop()
-  var suffix = hint || "anonymous"
-  return prefix + "#" + suffix
-}
-
-var nameUnique = typeof(process) !== "undefined" ? nameAfterOwner : nameRandomly
-var makeName = global["name@method"] || nameUnique
-
 var defineProperty = Object.defineProperty || function(object, name, property) {
   object[name] = property.value
   return object
@@ -61,19 +46,22 @@ builtin.TypeError = new ErrorType()
 builtin.URIError = new ErrorType()
 
 
-function Method(hint) {
+function Method(id) {
   /**
   Private Method is a callable private name that dispatches on the first
   arguments same named Method:
 
       method(object, ...rest) => object[method](...rest)
 
-  Optionally hint string may be provided that will be used in generated names
-  to ease debugging.
+  It is supposed to be given **unique** `id` preferably in `"jump@package"`
+  like form so it won't collide with `id's` other users create. If no argument
+  is passed unique id is generated, but it's proved to be problematic with
+  npm where it's easy to end up with a copies of same module where each copy
+  will have a different name.
 
   ## Example
 
-      var foo = Method()
+      var foo = Method("foo@awesomeness")
 
       // Implementation for any types
       foo.define(function(value, arg1, arg2) {
@@ -86,9 +74,9 @@ function Method(hint) {
       })
   **/
 
-  // Create an internal unique name if `hint` is provided it is used to
-  // prefix name to ease debugging.
-  var name = makeName(hint, module)
+  // Create an internal unique name if one is not provided, also prefix it
+  // to avoid collision with regular method names.
+  var name = "λ:" + String(id || Math.random().toString(32).substr(2))
 
   function dispatch(value) {
     // Method dispatches on type of the first argument.
@@ -125,7 +113,6 @@ function Method(hint) {
     // just fallback for default implementation.
     method = method || Default[name]
 
-
     // If implementation is still not found (which also means there is no
     // default) just throw an error with a descriptive message.
     if (!method) throw TypeError("Type does not implements method: " + name)
@@ -158,8 +145,8 @@ var implementMethod = function implementMethod(object, lambda) {
 
 // Define `implement` and `define` polymorphic methods to allow definitions
 // and implementations through them.
-var implement = Method("implement")
-var define = Method("define")
+var implement = Method("implement@method")
+var define = Method("define@method")
 
 
 function _implement(method, object, lambda) {
