@@ -5,6 +5,19 @@ var defineProperty = Object.defineProperty || function(object, name, property) {
   return object
 }
 
+// IE does not really has indexOf on arrays so we shim if that's what we're
+// dealing with.
+function ArrayindexOf(thing) {
+  var index = 0;
+  var count = this.length;
+  while (index < count) {
+    if (this[index] === thing) return index
+    index = index + 1
+  }
+  return -1
+}
+if (!Array.prototype.indexOf) Array.prototype.indexOf = ArrayindexOf
+
 // Shortcut for `Object.prototype.toString` for faster access.
 var typefy = Object.prototype.toString
 
