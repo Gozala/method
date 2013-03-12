@@ -16,5 +16,3 @@ exports["test host objects"] = function(assert) {
   assert.ok(!isElement({}), "object is not an Element")
   assert.ok(document.createElement("div"), "Element is an element")
 }
-
-require("test").run(exports)

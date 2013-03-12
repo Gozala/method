@@ -268,5 +268,3 @@ exports["test override define via method API"] = function(assert) {
 
   assert.equal(methods["foo-case"], foo, "define set property")
 }
-
-require("test").run(exports)
