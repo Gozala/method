@@ -1,7 +1,7 @@
 {
   "name": "method",
   "id": "method",
-  "version": "1.0.2",
+  "version": "2.0.0",
   "description": "Functional polymorphic method dispatch",
   "keywords": [
     "method",
@@ -23,14 +23,58 @@
   },
   "devDependencies": {
     "test": "~0.x.0",
-    "repl-utils": "~2.0.1",
-    "phantomify": "~0.1.0"
+    "phantomify": "~0.x.0",
+    "retape": "~0.x.0",
+    "tape": "~0.1.5"
   },
   "scripts": {
-    "test": "npm run test-node && npm run test-browser",
-    "test-browser": "node ./node_modules/phantomify/bin/cmd.js ./test/browser.js",
-    "test-node": "node ./test/common.js",
-    "repl": "node node_modules/repl-utils"
+    "test": "npm run test-node && npm run test-browser && npm run test-tap",
+    "test-browser": "node ./node_modules/phantomify/bin/cmd.js ./test/phantom-index.js",
+    "test-node": "node ./test/common-index.js",
+    "test-tap": "node ./test/tap-index.js"
+  },
+  "testling": {
+    "files": "test/testling-index.js",
+    "browsers": {
+      "iexplore": [
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "chrome": [
+        16,
+        20,
+        25,
+        "canary"
+      ],
+      "firefox": [
+        10,
+        15,
+        16,
+        17,
+        18,
+        19,
+        "nightly"
+      ],
+      "safari": [
+        5,
+        6
+      ],
+      "opera": [
+        10,
+        11,
+        12,
+        "next"
+      ],
+      "iphone": [
+        6
+      ],
+      "ipad": [
+        6
+      ]
+    }
   },
   "licenses": [
     {

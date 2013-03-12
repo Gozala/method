@@ -1,5 +1,10 @@
 # Changes
 
+## 2.0.0 / 2013-03-12
+
+  - Make naming methods with unique `id` users responsibility.
+  - Fix `npm dedup` issue by making unique `id`'s users responsibility.
+
 ## 1.0.2 / 2012-12-26
 
   - Delegate to polymorphic methods from `.define` and `.implement` so, they
