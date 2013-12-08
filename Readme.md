@@ -3,7 +3,7 @@
 [![Build Status](https://secure.travis-ci.org/Gozala/method.png)](http://travis-ci.org/Gozala/method)
 
 
-[![Browser support](http://ci.testling.com/Gozala/method.png)](http://ci.testling.com/Gozala/method)
+[![Browser support](https://ci.testling.com/Gozala/method.png)](http://ci.testling.com/Gozala/method)
 
 
 Library provides an API for defining polymorphic methods that dispatch on the
