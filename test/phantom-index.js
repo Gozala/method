@@ -1,3 +1,3 @@
 "use strict";
 
-require("test").run(require("./browser"))
+require("test").run(require("./index"))

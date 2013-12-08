@@ -1,3 +1,3 @@
 "use strict";
 
-require("retape")(require("./browser"))
+require("retape")(require("./index"))
